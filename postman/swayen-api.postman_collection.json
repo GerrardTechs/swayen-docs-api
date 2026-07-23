@@ -1,0 +1,259 @@
+{
+  "info": {
+    "name": "Swayen Backend API",
+    "description": "Peta endpoint lengkap Swayen Backend (5 Langkah / Konsep Swayen) untuk referensi frontend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "nightPlanId", "value": "" },
+    { "key": "timeboxSessionId", "value": "" },
+    { "key": "hobbyId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "A. Auth & User Management",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"budi@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Budi\"\n}"
+            },
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const data = pm.response.json().data;",
+                  "  pm.collectionVariables.set('accessToken', data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"budi@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json().data;",
+                  "  pm.collectionVariables.set('accessToken', data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/refresh",
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json().data;",
+                  "  pm.collectionVariables.set('accessToken', data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/logout",
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Get My Profile",
+          "request": { "method": "GET", "url": "{{baseUrl}}/users/me" }
+        }
+      ]
+    },
+    {
+      "name": "B. Night Planner",
+      "item": [
+        {
+          "name": "Create/Update Today's Plan",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/night-planner",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tasks\": [\"Baca 10 halaman buku\", \"Rapikan meja kerja\", \"Journaling 5 menit\"]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('nightPlanId', pm.response.json().data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Today's Plan",
+          "request": { "method": "GET", "url": "{{baseUrl}}/night-planner/today" }
+        },
+        {
+          "name": "Complete Plan",
+          "request": { "method": "PATCH", "url": "{{baseUrl}}/night-planner/{{nightPlanId}}/complete" }
+        }
+      ]
+    },
+    {
+      "name": "C. TimeBox & Wuxiu",
+      "item": [
+        {
+          "name": "Start Focus Session",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/timebox/start",
+            "body": { "mode": "raw", "raw": "{\n  \"durationMinutes\": 45\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('timeboxSessionId', pm.response.json().data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Start Wuxiu Nap",
+          "request": { "method": "POST", "url": "{{baseUrl}}/timebox/wuxiu" }
+        },
+        {
+          "name": "Finish Session",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/timebox/finish",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{timeboxSessionId}}\",\n  \"status\": \"COMPLETED\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "D. Swayen Wallet & Hobbies",
+      "item": [
+        {
+          "name": "Get Balance & History",
+          "request": { "method": "GET", "url": "{{baseUrl}}/swayen/balance" }
+        },
+        {
+          "name": "List Hobbies",
+          "request": { "method": "GET", "url": "{{baseUrl}}/swayen/hobbies" }
+        },
+        {
+          "name": "Create Hobby",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/swayen/hobbies",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Main gitar\",\n  \"durationMinutes\": 15,\n  \"deepLinkUrl\": \"https://open.spotify.com/\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('hobbyId', pm.response.json().data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Spend Coins",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/swayen/spend",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hobbyId\": \"{{hobbyId}}\",\n  \"activityName\": \"Main gitar 15 menit\",\n  \"amount\": 1\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "E. System & Engagement",
+      "item": [
+        {
+          "name": "Get Today's Quote",
+          "request": { "method": "GET", "url": "{{baseUrl}}/system/quotes/today", "auth": { "type": "noauth" } }
+        },
+        {
+          "name": "Get Engagement Status",
+          "request": { "method": "GET", "url": "{{baseUrl}}/system/engagement-status" }
+        }
+      ]
+    }
+  ]
+}
